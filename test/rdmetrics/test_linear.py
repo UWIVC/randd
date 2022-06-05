@@ -29,7 +29,7 @@ bitrates = np.array(
 
 range_r = np.array([100., 4000.])
 
-expected_result = [2.171283, -47.163667]
+expected_result = np.array([2.171283, -47.163667])
 
 
 class TestLinearRdmetrics:
