@@ -1,0 +1,1 @@
+A toolkit to calculate quality gain and bitrate saving between video codecs.
