@@ -7,7 +7,7 @@ from scipy.interpolate import interp1d
 
 class Linear(GRD):
     def __init__(self, r: NDArray, d: NDArray) -> GRD:
-        dic = self._group_input(r)
+        dic = self._group_input(r, d)
         self.f = {}
         for key in dic:
             ri, di = dic[key]
