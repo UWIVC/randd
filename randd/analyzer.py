@@ -100,22 +100,22 @@ class Analyzer:
 
     def _validate_input(
         self,
-        r1: ArrayLike, q1: ArrayLike,
-        r2: ArrayLike, q2: ArrayLike,
+        r1: ArrayLike, d1: ArrayLike,
+        r2: ArrayLike, d2: ArrayLike,
     ) -> None:
-        if len(r1) == 0 or len(r2) == 0 or len(q1) == 0 or len(q2) == 0:
+        if len(r1) == 0 or len(r2) == 0 or len(d1) == 0 or len(d2) == 0:
             raise ValueError('Invalid input. Input array cannot be empty.')
 
-        if len(r1) != len(q1):
-            raise ValueError(f'Input dimension mismatch: r1 length {len(r1)} != q1 length {len(q1)}.')
+        if len(r1) != len(d1):
+            raise ValueError(f'Input dimension mismatch: r1 length {len(r1)} != d1 length {len(d1)}.')
 
-        if len(r2) != len(q2):
-            raise ValueError(f'Input dimension mismatch: r1 length {len(r2)} != q1 length {len(q2)}.')
+        if len(r2) != len(d2):
+            raise ValueError(f'Input dimension mismatch: r2 length {len(r2)} != d2 length {len(d2)}.')
 
         r1 = np.asarray(r1)
-        q1 = np.asarray(q1)
+        d1 = np.asarray(d1)
         r2 = np.asarray(r2)
-        q2 = np.asarray(q2)
+        d2 = np.asarray(d2)
 
         if r1.ndim > 2:
             raise ValueError('Invalid r1. The dimension of r1 cannot be greater than 2.')
@@ -123,11 +123,11 @@ class Analyzer:
         if r2.ndim > 2:
             raise ValueError('Invalid r2. The dimension of r2 cannot be greater than 2.')
 
-        if q1.ndim > 1:
-            raise ValueError('Invalid q1. q1 has to be a 1-D array/list.')
+        if d1.ndim > 1:
+            raise ValueError('Invalid d1. d1 has to be a 1-D array/list.')
 
-        if q2.ndim > 1:
-            raise ValueError('Invalid q2. q2 has to be a 1-D array/list.')
+        if d2.ndim > 1:
+            raise ValueError('Invalid d2. d2 has to be a 1-D array/list.')
 
         if r1.ndim == 2 and r1.shape[1] == 1:
             r1 = np.squeeze(r1, axis=1)
@@ -135,7 +135,7 @@ class Analyzer:
         if r2.ndim == 2 and r2.shape[1] == 1:
             r2 = np.squeeze(r2, axis=1)
 
-        return r1, q1, r2, q2
+        return r1, d1, r2, d2
 
     def _r_roi(self, r1: NDArray, r2: NDArray) -> Tuple[float, float]:
         y1 = r1 if r1.ndim == 1 else r1[:, 0]
