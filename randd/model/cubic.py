@@ -1,8 +1,9 @@
-from typing import Tuple
 import numpy as np
-from numpy.typing import ArrayLike, NDArray
-from .rd_functions import Func1d, NanFunc1d
-from .base import BaseEstimator1d, BaseEstimator2d
+from typing import Dict
+from .utils import group_input
+from randd.model.base import GRD
+from numpy.typing import NDArray
+from scipy.interpolate import interp1d
 
 
 class LogCubicEstimator1d(BaseEstimator1d):
@@ -56,8 +57,3 @@ class LogCubicEstimator1d(BaseEstimator1d):
 
         q_logr_func = np.poly1d(np.polyfit(q, logr, deg=3))
         return Func1d(qr_func)
-
-
-class LogCubicEstimator2d(BaseEstimator2d):
-    def __init__(self) -> None:
-        super().__init__(LogCubicEstimator1d())

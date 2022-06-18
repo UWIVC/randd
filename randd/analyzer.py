@@ -116,6 +116,25 @@ class Analyzer:
         q1 = np.asarray(q1)
         r2 = np.asarray(r2)
         q2 = np.asarray(q2)
+
+        if r1.ndim > 2:
+            raise ValueError('Invalid r1. The dimension of r1 cannot be greater than 2.')
+
+        if r2.ndim > 2:
+            raise ValueError('Invalid r2. The dimension of r2 cannot be greater than 2.')
+
+        if q1.ndim > 1:
+            raise ValueError('Invalid q1. q1 has to be a 1-D array/list.')
+
+        if q2.ndim > 1:
+            raise ValueError('Invalid q2. q2 has to be a 1-D array/list.')
+
+        if r1.ndim == 2 and r1.shape[1] == 1:
+            r1 = np.squeeze(r1, axis=1)
+
+        if r2.ndim == 2 and r2.shape[1] == 1:
+            r2 = np.squeeze(r2, axis=1)
+
         return r1, q1, r2, q2
 
     def _r_roi(self, r1: NDArray, r2: NDArray) -> Tuple[float, float]:
