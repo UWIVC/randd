@@ -6,7 +6,7 @@ from scipy.interpolate import interp1d
 
 
 class Linear(GRD):
-    def __init__(self, r: NDArray, d: NDArray) -> GRD:
+    def __init__(self, r: NDArray, d: NDArray) -> None:
         dic = self._group_input(r, d)
         self.f = {}
         for key in dic:
@@ -16,7 +16,7 @@ class Linear(GRD):
     def __call__(self, r: NDArray) -> NDArray:
         d = np.zeros(r.shape[0])
         for i, row in enumerate(r):
-            dic: Dict = self._group_input(np.asarray(row))
+            dic: Dict = self._group_input(row)
             hparam, value = dic.popitem()
             rate, _ = value
             d[i] = self.f[hparam](rate[0]) if hparam in self.f else np.nan

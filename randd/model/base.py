@@ -11,7 +11,7 @@ class GRD:
         pass
 
     def _group_input(
-        r: NDArray, d: Optional[NDArray] = None
+        self, r: NDArray, d: Optional[NDArray] = None
     ) -> Dict[Any, Tuple[NDArray, NDArray]]:
         out = {}
         if d is None:
