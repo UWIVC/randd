@@ -1,63 +1,13 @@
-from typing import Callable, Optional, Union
-import scipy.interpolate
 import numpy as np
+from scipy.interpolate import interp1d
 from numpy.typing import ArrayLike, NDArray
+from typing import Callable, Union, Optional, Tuple
 
 
-class FuncNd:
-    def __init__(
-        self,
-        f: Callable[[ArrayLike], NDArray],
-        n: int = 1
-    ) -> None:
-        """A general class of n-variate function. This class will check dimension compability of input.
+class GRD:
+    """This class defines a generalized rate-distortion (GRD) function.
 
-        Args:
-            f (Callable[[ArrayLike], NDArray]): The real function being excuted
-            n (int, optional): The correct dimension of input variable. Defaults to 1.
-
-        TODO: Check whether f takes exactly n arguments.
-        """
-        self.func = f
-        self.n = n
-
-    def __call__(self, x: ArrayLike) -> NDArray:
-        x = np.asarray(x)
-
-        if self.n == 1:
-            if x.ndim <= 1:
-                x = x[..., np.newaxis]
-
-        if self.n != x.shape[-1]:
-            raise ValueError("The size of the last dimension of the input array to a {:d}-variate function should be {:d} as well."
-                             "Got an input array of {} instead".format(self.n, self.n, x.shape))
-
-        split_x = [x[..., i] for i in range(self.n)]
-        return self.func(*split_x)
-
-
-class Func1d(FuncNd):
-    def __init__(self, f: Callable[[ArrayLike], NDArray]) -> None:
-        super().__init__(f, n=1)
-
-
-class Func2d(FuncNd):
-    def __init__(self, f: Callable[[ArrayLike], NDArray]) -> None:
-        super().__init__(f, n=2)
-
-
-def nan_func(x: ArrayLike) -> NDArray:
-    x = np.asarray(x)
-    return np.full(x.shape, np.nan)
-
-
-class NanFunc1d(Func1d):
-    def __init__(self) -> None:
-        super().__init__(f=nan_func)
-
-
-class GRDSurface2d:
-    """This class defines a 2d GRD surface, which takes continuous bitrate and discrete resolution as input.
+    The GRD function takes an encoding representation as input, and produces the corresponding distortion.
 
     Args:
         reps (ArrayLike): An (N, 2) array. Each row represents a data point.
@@ -73,9 +23,9 @@ class GRDSurface2d:
     """
     def __init__(
         self,
-        reps: ArrayLike,
-        qualities: ArrayLike,
-        interp1d: Callable[[NDArray, NDArray], Callable[[Union[ArrayLike, NDArray]], NDArray]] = scipy.interpolate.interp1d
+        r: ArrayLike,
+        d: ArrayLike,
+        interp1d: interp1d = interp1d       # TODO: to be fixed
     ) -> None:
         # Handle input data
         reps = np.array(reps, dtype=float)
@@ -135,7 +85,9 @@ class GRDSurface2d:
     def get_discrete_version(self):
         return self.reps, self.qualities
 
-    def get_rq_envelop(self, r_min: Optional[float] = None, r_max: Optional[float] = None, n_samples: int = 1001):
+    def convex_hull(
+        self, r_min: Optional[float] = None, r_max: Optional[float] = None, n_samples: int = 1001
+    ) -> Tuple[ArrayLike, ArrayLike, ArrayLike]:
         if r_min is None:
             r_min = np.min(self.reps[:, 0])
         if r_max is None:

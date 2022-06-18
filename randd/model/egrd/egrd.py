@@ -1,11 +1,8 @@
-from pathlib import Path
-from typing import Tuple, Union, Optional
 import numpy as np
+from pathlib import Path
+from randd.model.base import GRD
+from typing import Tuple, Union, Optional
 from numpy.typing import ArrayLike, NDArray
-from randd.estimators.base_estimator import BaseEstimator1d
-from randd.estimators.linear import LinearEstimator1d
-import scipy.interpolate
-from randd.estimators.rd_functions import FuncNd, Func1d, Func2d, GRDSurface2d
 
 
 class EgrdCore:
@@ -217,7 +214,7 @@ class EgrdCore:
         return c_opt
 
 
-class EgrdEstimator(BaseEstimator1d):
+class EGRD(GRD):
     def __init__(
         self,
         reps: NDArray,

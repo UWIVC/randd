@@ -2,8 +2,8 @@ from typing import Tuple
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 from scipy.optimize import curve_fit
-from randd.estimators.rd_functions import Func1d, NanFunc1d
-from randd.estimators.base_estimator import BaseEstimator1d, BaseEstimator2d
+from randd.model.rd_functions import Func1d, NanFunc1d
+from randd.model.base import BaseEstimator1d, BaseEstimator2d
 
 
 class LogLogisticEstimator1d(BaseEstimator1d):
@@ -11,8 +11,8 @@ class LogLogisticEstimator1d(BaseEstimator1d):
        Extrapolation is automatically enabled.
 
     References:
-            P. Hanhart, T. Ebrahimi, "Calculation of average coding efficiency based on subjective quality scores,"
-            Journal of Visual Communication and Image Representation, vol. 25, issue 3, pp 555--564. Apr. 2014.
+        P. Hanhart, T. Ebrahimi, "Calculation of average coding efficiency based on subjective quality scores,"
+        Journal of Visual Communication and Image Representation, vol. 25, issue 3, pp 555--564. Apr. 2014.
     """
     def __call__(self, r: ArrayLike, q: ArrayLike) -> Tuple[Func1d, Func1d]:
         r = np.array(r, dtype=float)

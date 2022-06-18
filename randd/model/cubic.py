@@ -1,18 +1,20 @@
 from typing import Tuple
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
-import scipy.interpolate
 from .rd_functions import Func1d, NanFunc1d
-from .base_estimator import BaseEstimator1d, BaseEstimator2d
+from .base import BaseEstimator1d, BaseEstimator2d
 
 
-class LogPchipEstimator1d(BaseEstimator1d):
-    """1D PCHIP rd/dr function interpolator.
-       Bitrate is converted into log scale according to the reference below.
-       Extrapolation is enabled, but not always reliable.
+class LogCubicEstimator1d(BaseEstimator1d):
+    """ 1D log cubic function estimator. Bitrate is converted into log scale according to the reference below.
+        Extrapolation is automatically enabled, but not reliable.
+        Used in estimation of BD-PSNR and BD-Rate.
 
-       References:
-            https://chromium.googlesource.com/webm/contributor-guide/+/master/scripts/visual_metrics.py
+    References:
+        G. Bjøntegaard, "Calculation of average PSNR differences between rdcurves,
+        Austin, TX, USA, Tech. Rep. VCEG-M33, ITU-T SG 16/Q6, 13th VCEG Meeting, Apr. 2001.
+        G. Bjøntegaard, "Improvements of the BD-PSNR model," Berlin, Germany, Tech.
+        Rep. VCEG-AI11, ITU-T SG 16/Q6, 35th VCEG Meeting, Jul. 2008.
     """
     def __call__(self, r: ArrayLike, q: ArrayLike) -> Tuple[Func1d, Func1d]:
         r = np.array(r, dtype=float)
@@ -22,13 +24,13 @@ class LogPchipEstimator1d(BaseEstimator1d):
         q = q[sort_idx]
         try:
             rq_func = self._rq_fit(r, q)
-        except ValueError or TypeError as e:
+        except (ValueError, TypeError) as e:
             print('Warning: Raised {} internally.'.format(str(e)))
             rq_func = NanFunc1d()
 
         try:
             qr_func = self._qr_fit(q, r)
-        except ValueError or TypeError as e:
+        except (ValueError or TypeError) as e:
             print('Warning: Raised {} internally.'.format(str(e)))
             qr_func = NanFunc1d()
         return rq_func, qr_func
@@ -38,11 +40,9 @@ class LogPchipEstimator1d(BaseEstimator1d):
         def rq_func(rsamples):
             return logr_q_func(np.log10(rsamples))
 
-        sort_idxs = np.argsort(r)
-        r = r[sort_idxs]
-        q = q[sort_idxs]
         logr = np.log10(r)
-        logr_q_func = scipy.interpolate.PchipInterpolator(logr, q, extrapolate=True)
+
+        logr_q_func = np.poly1d(np.polyfit(logr, q, deg=3))
         return Func1d(f=rq_func)
 
     @staticmethod
@@ -52,14 +52,12 @@ class LogPchipEstimator1d(BaseEstimator1d):
 
         q, unique_idxs = np.unique(q, return_index=True)
         r = r[unique_idxs]
-        sort_idxs = np.argsort(q)
-        q = q[sort_idxs]
-        r = r[sort_idxs]
         logr = np.log10(r)
-        q_logr_func = scipy.interpolate.PchipInterpolator(q, logr, extrapolate=True)
+
+        q_logr_func = np.poly1d(np.polyfit(q, logr, deg=3))
         return Func1d(qr_func)
 
 
-class LogPchipEstimator2d(BaseEstimator2d):
+class LogCubicEstimator2d(BaseEstimator2d):
     def __init__(self) -> None:
-        super().__init__(LogPchipEstimator1d())
+        super().__init__(LogCubicEstimator1d())

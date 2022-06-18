@@ -130,3 +130,9 @@ dmypy.json
 
 # Experiments folder
 exps/
+
+# vs code settings
+.vscode/
+
+# mac specific files
+.DS_Store

@@ -1,5 +1,5 @@
 from .egrd import (
-    EgrdEstimator,
+    EGRD,
     EgrdCore,
     SsimplusEgrdEstimator1d,
     SsimplusEgrdEstimator2d,
@@ -12,7 +12,7 @@ from .egrd import (
 
 
 __all__ = [
-    "EgrdEstimator",
+    "EGRD",
     "EgrdCore",
     "SsimplusEgrdEstimator1d",
     "SsimplusEgrdEstimator2d",
