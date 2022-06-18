@@ -19,7 +19,7 @@ class GRD:
 
         if r.shape[1] == 1:
             key = 'default'
-            out[key] = (r, d)
+            out[key] = (r.flatten(), d)
             return out
 
         for (row, di) in zip(r, d):
@@ -30,7 +30,7 @@ class GRD:
 
         for key in out:
             r, d = out[key]
-            out[key] = (r, d)
+            out[key] = (np.asarray(r, dtype=float), np.asarray(d, dtype=float))
 
         return out
 

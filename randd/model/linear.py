@@ -16,6 +16,7 @@ class Linear(GRD):
     def __call__(self, r: NDArray) -> NDArray:
         d = np.zeros(r.shape[0])
         for i, row in enumerate(r):
+            row = np.expand_dims(row, axis=0)
             dic: Dict = self._group_input(row)
             hparam, value = dic.popitem()
             rate, _ = value

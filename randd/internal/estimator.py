@@ -24,6 +24,7 @@ class Estimator:
     def __init__(
         self,
         model: Type[GRD],
+        d_measure: str = 'ssim',
         step: int = 1000,
         mode: str = "linear",
     ) -> None:

@@ -1,8 +1,63 @@
 import numpy as np
 from pathlib import Path
 from randd.model.base import GRD
-from typing import Tuple, Union, Optional
+from scipy.interpolate import interp1d
 from numpy.typing import ArrayLike, NDArray
+from typing import Tuple, Union, Optional, Dict, Type
+
+
+def egrd_factory(ndim: int, d_measure: str = 'ssim') -> EgrdCore:
+    pass
+
+
+class EGRD(GRD):
+    def __init__(self, r: NDArray, d: NDArray) -> None:
+        # obtain dense samples on GRD
+        egrd = egrd_factory()
+        _r, _d = egrd(r, d)
+        dic = self._group_input(r, d)
+        self.f = {}
+        for key in dic:
+            ri, di = dic[key]
+            self.f[key] = interp1d(ri, di, fill_value='extrapolate')
+
+    def __call__(self, r: NDArray) -> NDArray:
+        d = np.zeros(r.shape[0])
+        for i, row in enumerate(r):
+            row = np.expand_dims(row, axis=0)
+            dic: Dict = self._group_input(row)
+            hparam, value = dic.popitem()
+            rate, _ = value
+            d[i] = self.f[hparam](rate[0]) if hparam in self.f else np.nan
+
+        return d
+
+
+# class Temp:
+#     def __init__(
+#         self,
+#         reps: NDArray,
+#         f0: NDArray,
+#         basis: NDArray,
+#         base_estimator1d: BaseEstimator1d = LinearEstimator1d()
+#     ) -> None:
+#         self.egrd_core = EgrdCore(reps, f0, basis)
+#         self.base_estimator1d = base_estimator1d
+
+#     def __call__(self, reps: NDArray, q: NDArray, num_basis: Union[int, None] = None) -> Tuple[Func1d, Func1d]:
+#         q_hat = self.egrd_core.recon_discrete_grd(reps, q, num_basis)
+#         if self.egrd_core.num_resolution > 1:
+#             grd2d = GRDSurface2d(self.egrd_core.reps, q_hat, self.base_estimator1d.estimate_rq_func)
+#             q_hat, r_hat, _ = grd2d.get_rq_envelop()
+#         else:
+#             r_hat = self.egrd_core.reps
+
+#         r_hat: NDArray = r_hat.flatten()
+#         q_hat: NDArray = q_hat.flatten()
+
+#         rq_func, qr_func = self.base_estimator1d(r_hat, q_hat)
+
+#         return rq_func, qr_func
 
 
 class EgrdCore:
@@ -81,6 +136,7 @@ class EgrdCore:
                 row[(idx + 2) * self.num_bitrate - 1] = 1
 
             D = np.concatenate((D, D2), axis=0)
+
         return D
 
     def recon_discrete_grd(self, reps: NDArray, q: NDArray, num_basis: Optional[int] = None) -> NDArray:
@@ -138,7 +194,7 @@ class EgrdCore:
         """
         q_hat = self.recon_discrete_grd(reps, q, num_basis)
         if self.reps.ndim == 1:
-            grd_func = Func1d(scipy.interpolate.interp1d(self.reps, q_hat, fill_value='extrapolate'))
+            grd_func = scipy.interpolate.interp1d(self.reps, q_hat, fill_value='extrapolate')
         else:
             grd_func = Func2d(GRDSurface2d(self.reps, q_hat))
 
@@ -200,7 +256,7 @@ class EgrdCore:
         return res.x
 
     def _solve_c(self, f0f_tilde, H_tilde, H):
-        ''' Construct input for quadratic programming and solve for c'''
+        r'''Construct input for quadratic programming and solve for c'''
         from scipy.sparse import csc_matrix
 
         P = 2 * np.dot(H_tilde.T, H_tilde)
@@ -212,75 +268,6 @@ class EgrdCore:
         G = csc_matrix(G)
         c_opt = self._osqp_solve_qp(P, q, G=G, h=h)
         return c_opt
-
-
-class EGRD(GRD):
-    def __init__(
-        self,
-        reps: NDArray,
-        f0: NDArray,
-        basis: NDArray,
-        base_estimator1d: BaseEstimator1d = LinearEstimator1d()
-    ) -> None:
-        self.egrd_core = EgrdCore(reps, f0, basis)
-        self.base_estimator1d = base_estimator1d
-
-    def __call__(self, reps: NDArray, q: NDArray, num_basis: Union[int, None] = None) -> Tuple[Func1d, Func1d]:
-        q_hat = self.egrd_core.recon_discrete_grd(reps, q, num_basis)
-        if self.egrd_core.num_resolution > 1:
-            grd2d = GRDSurface2d(self.egrd_core.reps, q_hat, self.base_estimator1d.estimate_rq_func)
-            q_hat, r_hat, _ = grd2d.get_rq_envelop()
-        else:
-            r_hat = self.egrd_core.reps
-
-        r_hat: NDArray = r_hat.flatten()
-        q_hat: NDArray = q_hat.flatten()
-
-        rq_func, qr_func = self.base_estimator1d(r_hat, q_hat)
-
-        return rq_func, qr_func
-
-
-class SsimplusEgrdEstimator1d(EgrdEstimator):
-    def __init__(self) -> None:
-        egrd_kwargs = dict(np.load(
-            Path('randd', 'estimators', 'egrd', 'basis', 'ssimplus_100_6000_1080p.npz')))
-        super().__init__(**egrd_kwargs)
-
-
-class VmafEgrdEstimator1d(EgrdEstimator):
-    def __init__(self) -> None:
-        egrd_kwargs = dict(np.load(
-            Path('randd', 'estimators', 'egrd', 'basis', 'vmaf_100_6000_1080p.npz')))
-        super().__init__(**egrd_kwargs)
-
-
-class PsnrEgrdEstimator1d(EgrdEstimator):
-    def __init__(self) -> None:
-        egrd_kwargs = dict(np.load(
-            Path('randd', 'estimators', 'egrd', 'basis', 'psnr_100_6000_1080p.npz')))
-        super().__init__(**egrd_kwargs)
-
-
-class SsimplusEgrdEstimator2d(EgrdEstimator):
-    def __init__(self) -> None:
-        egrd_kwargs = dict(np.load(
-            Path('randd', 'estimators', 'egrd', 'basis', 'ssimplus_100_6000_allres.npz')))
-        super().__init__(**egrd_kwargs)
-
-
-class VmafEgrdEstimator2d(EgrdEstimator):
-    def __init__(self) -> None:
-        egrd_kwargs = dict(np.load(
-            Path('randd', 'estimators', 'egrd', 'basis', 'vmaf_100_6000_allres.npz')))
-        super().__init__(**egrd_kwargs)
-
-
-class PsnrEgrdEstimator2d(EgrdEstimator):
-    def __init__(self) -> None:
-        egrd_kwargs = dict(np.load(
-            Path('randd', 'estimators', 'egrd', 'basis', 'psnr_100_6000_allres.npz')))
-        super().__init__(**egrd_kwargs)
 
 
 def generate_eigen_basis(data: ArrayLike, return_eigval: bool = False) -> Tuple[NDArray, ...]:
