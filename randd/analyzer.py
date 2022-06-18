@@ -117,6 +117,9 @@ class Analyzer:
         r2 = np.asarray(r2)
         d2 = np.asarray(d2)
 
+        d1 = np.squeeze(d1)
+        d2 = np.squeeze(d2)
+
         if r1.ndim > 2:
             raise ValueError('Invalid r1. The dimension of r1 cannot be greater than 2.')
 
@@ -129,11 +132,11 @@ class Analyzer:
         if d2.ndim > 1:
             raise ValueError('Invalid d2. d2 has to be a 1-D array/list.')
 
-        if r1.ndim == 2 and r1.shape[1] == 1:
-            r1 = np.squeeze(r1, axis=1)
+        if r1.ndim == 1:
+            r1 = np.expand_dims(r1, axis=1)
 
-        if r2.ndim == 2 and r2.shape[1] == 1:
-            r2 = np.squeeze(r2, axis=1)
+        if r2.ndim == 1:
+            r2 = np.expand_dims(r2, axis=1)
 
         return r1, d1, r2, d2
 

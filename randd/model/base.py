@@ -17,9 +17,8 @@ class GRD:
         if d is None:
             d = np.empty(r.shape[0])
 
-        if r.ndim == 1:
+        if r.shape[1] == 1:
             key = 'default'
-            # rhat, dhat = sort_rd(r=r, d=d)
             out[key] = (r, d)
             return out
 
@@ -31,7 +30,6 @@ class GRD:
 
         for key in out:
             r, d = out[key]
-            # r, d = sort_rd(r=r, d=d)
             out[key] = (r, d)
 
         return out

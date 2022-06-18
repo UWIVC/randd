@@ -16,7 +16,7 @@ class Linear(GRD):
     def __call__(self, r: NDArray) -> NDArray:
         d = np.zeros(r.shape[0])
         for i, row in enumerate(r):
-            dic: Dict = self._group_input(row)
+            dic: Dict = self._group_input(np.asarray(row))
             hparam, value = dic.popitem()
             rate, _ = value
             d[i] = self.f[hparam](rate[0]) if hparam in self.f else np.nan
