@@ -62,7 +62,7 @@ Sample Usage
     r2 = np.array([100., 400., 1500., 6000.])
     d2 = np.array([16.25, 29.75, 33.52, 39.12])
     analyzer = rd.Analyzer(d_measure='psnr')
-    quality_gain, bitrate_saving, summary = analyzer(r1, d1, r2, d2, codec1='h264', codec2='hevc')
+    quality_gain, bitrate_saving, summary = analyzer(r1, d1, r2, d2, codec1='h264', codec2='vp9')
 
 .. image:: docs/source/_static/example1.png
 

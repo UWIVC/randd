@@ -9,10 +9,10 @@ from typing import Callable, Optional, Tuple, Type
 @dataclass
 class Profile:
     name: str
-    rq_func: Callable[[ArrayLike], NDArray]
-    qr_func: Callable[[ArrayLike], NDArray]
+    rd_func: Callable[[ArrayLike], NDArray]
+    dr_func: Callable[[ArrayLike], NDArray]
     sampled_r: ArrayLike
-    sampled_q: ArrayLike
+    sampled_d: ArrayLike
 
 
 @dataclass
@@ -50,18 +50,18 @@ class Analyzer:
         codec1: str = 'codec1',
         codec2: str = 'codec2',
     ) -> Tuple[float, float, Summary]:
-        r"""_summary_
+        r"""Run codec comparison.
 
         Args:
-            r1 (ArrayLike): _description_
-            d1 (ArrayLike): _description_
-            r2 (ArrayLike): _description_
-            d2 (ArrayLike): _description_
-            codec1 (str, optional): _description_. Defaults to 'codec1'.
-            codec2 (str, optional): _description_. Defaults to 'codec2'.
+            r1 (ArrayLike): representation of the first encoder
+            d1 (ArrayLike): the corresponding distortion of the first encoder
+            r2 (ArrayLike): representation of the second encoder
+            d2 (ArrayLike): the corresponding distortion of the second encoder
+            codec1 (str, optional): name of the codec 1. Defaults to 'codec1'.
+            codec2 (str, optional): name of the codec 2. Defaults to 'codec2'.
 
         Returns:
-            Tuple[float, float, Summary]: _description_
+            Tuple[float, float, Summary]: quality gain, bitrate saving, summary
         """
         r1, d1, r2, d2 = self._validate_input(r1, d1, r2, d2)
 

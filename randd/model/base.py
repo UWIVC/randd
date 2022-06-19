@@ -37,7 +37,7 @@ class GRD:
         return out
 
     def convex_hull(
-        self, r_roi: Tuple[float, float] = (0, 10000), n_samples: int = 1001
+        self, r_roi: Tuple[float, float] = (100, 10000), n_samples: int = 1001
     ) -> Tuple[NDArray, NDArray, NDArray]:
         r_min = r_roi[0]
         r_max = r_roi[1]

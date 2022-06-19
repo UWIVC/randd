@@ -27,7 +27,7 @@ class Estimator:
         ndim: int = 1,
         d_measure: str = 'psnr',
         n_samples: int = 1001,
-        r_roi: Tuple[float, float] = (0, 10000),
+        r_roi: Tuple[float, float] = (100, 10000),
         mode: str = "linear",
     ) -> None:
         self.n_samples = n_samples
