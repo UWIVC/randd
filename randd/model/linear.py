@@ -9,7 +9,6 @@ class Linear(GRD):
     def __init__(self, r: NDArray, d: NDArray, d_measure: str, ndim: int) -> None:
         super().__init__(r, d, d_measure, ndim)
         dic = self._group_input(r, d)
-        self.f = {}
         for key in dic:
             ri, di = dic[key]
             self.f[key] = interp1d(ri, di, fill_value='extrapolate')

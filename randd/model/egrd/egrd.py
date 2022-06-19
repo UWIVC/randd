@@ -225,7 +225,6 @@ class EGRD(GRD):
         _r, _d = model.sample()
         # get a continuous version
         dic = self._group_input(_r, _d)
-        self.f = {}
         for key in dic:
             ri, di = dic[key]
             self.f[key] = interp1d(ri, di, fill_value='extrapolate')

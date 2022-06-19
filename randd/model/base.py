@@ -7,6 +7,7 @@ class GRD:
     def __init__(self, r: NDArray, d: NDArray, d_measure: str = 'psnr', ndim: int = 1) -> None:
         self.d_measure = d_measure
         self.ndim = ndim
+        self.f = {}
 
     def __call__(self, r: NDArray) -> NDArray:
         pass
@@ -36,26 +37,22 @@ class GRD:
         return out
 
     def convex_hull(
-        self, r_min: Optional[float] = None, r_max: Optional[float] = None, n_samples: int = 1001
+        self, r_roi: Tuple[float, float] = (0, 10000), n_samples: int = 1001
     ) -> Tuple[NDArray, NDArray, NDArray]:
-        if r_min is None:
-            r_min = np.min(self.reps[:, 0])
-        if r_max is None:
-            r_max = np.max(self.reps[:, 0])
+        r_min = r_roi[0]
+        r_max = r_roi[1]
         assert r_max > r_min > 0
 
         r_grid = np.linspace(r_min, r_max, num=n_samples)
-        q_on_grid = [self.continuous_rq_funcs[res](r_grid) for res in self.resolutions]
+        q_on_grid = [self.f[key](r_grid) for key in self.f.keys()]
         q_on_grid = np.stack(q_on_grid, axis=0)
 
         valid_mask = np.logical_not(np.all(np.isnan(q_on_grid), axis=0))
         q_on_grid = q_on_grid[:, valid_mask]
-        r_grid = r_grid[valid_mask]
+        r_grid: NDArray = r_grid[valid_mask]
 
         if r_grid.size < n_samples * 0.5:
             raise ValueError("Too many NaNs in the estimated GRD surface.")
 
-        best_q_on_r_grid = np.nanmax(q_on_grid, axis=0)
-        res_id_for_best_q = np.nanargmax(q_on_grid, axis=0)
-        res_for_best_q = self.resolutions[res_id_for_best_q]
-        return best_q_on_r_grid, r_grid, res_for_best_q
+        d_opt = np.nanmax(q_on_grid, axis=0)
+        return r_grid, d_opt
