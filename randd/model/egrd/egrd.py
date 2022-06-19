@@ -9,13 +9,17 @@ from scipy.interpolate import interp1d
 
 class EgrdCore:
     def __init__(
-        self, r: NDArray, d: NDArray, reps: NDArray, f0: NDArray, basis: NDArray
+        self,
+        r: NDArray, d: NDArray, d_measure: str, ndim: int,
+        reps: NDArray, f0: NDArray, basis: NDArray
     ) -> None:
         """Perform EGRD estimation with the given average function and basis
 
         Args:
             r (NDArray): sampled representations with the first dimension being bitrate
             d (NDArray): the corresponding distortion
+            d_measure (str): distortion measure name
+            ndim (int): number of dimensions for input
             reps (NDArray): (N,) or (N, 1) or (N, 2) array.
                 N is the number of representations.
                 First dimension is bitrate, and second dimension is resolution.
@@ -26,8 +30,8 @@ class EgrdCore:
         self.reps, self.f0, self.H = self._validate_weights(reps, f0, basis)
 
         # obtain a continuous estimate of the bases
-        self.f0_cont = Linear(self.reps, self.f0)
-        self.basis_cont = [Linear(self.reps, self.H[:, i]) for i in range(self.total_num_basis)]
+        self.f0_cont = Linear(self.reps, self.f0, d_measure=d_measure, ndim=ndim)
+        self.basis_cont = [Linear(self.reps, self.H[:, i], d_measure=d_measure, ndim=ndim) for i in range(self.total_num_basis)]
 
         # Construct the difference matrix for the constraint in the quadratic programming
         c_opt = self._solve_qp(r, d)
@@ -39,6 +43,9 @@ class EgrdCore:
         if reps.ndim == 0 or reps.ndim > 2:
             raise ValueError("Expected reps to be a 1d or 2d array, but got a {:d}d array instead.".format(reps.ndim))
 
+        if reps.ndim == 1:
+            reps = np.expand_dims(reps, axis=1)
+
         if f0.size != reps.shape[0]:
             raise ValueError("Expected {:d} entries in f0, but got {:d} entries instead.".format(reps.shape[0], f0.size))
 
@@ -48,12 +55,12 @@ class EgrdCore:
         if basis.shape[0] != reps.shape[0]:
             raise ValueError("Expected {:d} rows in basis, but got {:d} rows instead.".format(reps.shape[0], basis.shape[0]))
 
-        self.total_num_basis = self.H.shape[1]
-        self.num_rep = self.reps.shape[0]
+        self.total_num_basis = basis.shape[1]
+        self.num_rep = reps.shape[0]
 
         self.num_resolution = 1
-        if self.reps.shape[1] > 1:
-            resolutions: NDArray = np.unique(self.reps[:, 1])
+        if reps.shape[1] > 1:
+            resolutions: NDArray = np.unique(reps[:, 1])
             self.num_resolution = resolutions.size
 
         self.num_bitrate = int(self.num_rep / self.num_resolution)
@@ -213,7 +220,7 @@ bases = {
 def egrd_factory(d_measure: str, ndim: int) -> EgrdCore:
     w_file = bases[(d_measure, ndim)]
     weights = dict(np.load(w_file))
-    return lambda r, d: EgrdCore(r=r, d=d, **weights)
+    return lambda r, d: EgrdCore(r=r, d=d, d_measure=d_measure, ndim=ndim, **weights)
 
 
 class EGRD(GRD):
