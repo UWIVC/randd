@@ -50,7 +50,7 @@ Sample Usage
 ============
 
 1D example with distortion measure being PSNR:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------------------
 
 .. code-block:: python
 
@@ -68,7 +68,7 @@ Sample Usage
 
 
 2D example with distortion measure being VMAF. Compare the two codecs in the bitrate region [100, 3000]:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------------------------------------------------------
 
 .. code-block:: python
 
@@ -87,7 +87,7 @@ Sample Usage
 
 
 R&D also provides implementation of traditional codec comparison tools such as BD-rate:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------------------------------------------------------
 
 .. code-block:: python
 
@@ -107,8 +107,9 @@ R&D also provides implementation of traditional codec comparison tools such as B
 
 .. citation-section-start
 
+========
 Citation
---------
+========
 We are making R&D publicly available. If you use R&D in your project, we kindly ask you to cite the following paper:
 
 .. code-block:: tex
@@ -128,8 +129,9 @@ We are making R&D publicly available. If you use R&D in your project, we kindly 
 
 .. contact-section-start
 
+========
 Contacts
---------
+========
 
 **Wentao Liu** - `@w238liu <https://ece.uwaterloo.ca/~w238liu>`_ - ``w238liu@uwaterloo.ca``
 
