@@ -33,11 +33,12 @@ class Analyzer:
         model2: Type[GRD] = EGRD,
         r_roi: Optional[ArrayLike] = None,
         d_roi: Optional[ArrayLike] = None,
-        d_measure: str = 'ssim',
+        ndim: int = 1,
+        d_measure: str = 'psnr',
         log_scale: bool = False
     ) -> None:
-        self.estimator1 = Estimator(model=model1, d_measure=d_measure)
-        self.estimator2 = Estimator(model=model2, d_measure=d_measure)
+        self.estimator1 = Estimator(model=model1, d_measure=d_measure, ndim=ndim)
+        self.estimator2 = Estimator(model=model2, d_measure=d_measure, ndim=ndim)
         self.r_roi = r_roi
         self.d_roi = d_roi
         self.log_scale = log_scale
