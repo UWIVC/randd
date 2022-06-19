@@ -76,8 +76,25 @@ Sample Usage
     r2 = np.array([100, 300, 800, 1500])
     d2 = np.array([])
     analyzer = rd.Analyzer(d_measure='vmaf', ndim=2, r_roi=[100, 3000])
-    quality_gain, bitrate_saving, summary = analyzer(r1, d1, r2, d2, codec1='h264', codec2='hevc')
+    quality_gain, bitrate_saving, summary = analyzer(r1, d1, r2, d2, codec1='h264', codec2='vp9')
 
+.. image:: docs/source/_static/example2.png
+
+
+R&D also provides implementation of traditional codec comparison tools such as BD-rate:
+
+.. code-block:: python
+
+    import randd as rd
+    import numpy as np
+    from randd.model import LogCubic
+
+    r1 = np.array([100, 300, 800, 1500])
+    d1 = np.array([])
+    r2 = np.array([100, 300, 800, 1500])
+    d2 = np.array([])
+    analyzer = rd.Analyzer(d_measure='psnr', model1=LogCubic, model2=LogCubic)
+    quality_gain, bitrate_saving, summary = analyzer(r1, d1, r2, d2, codec1='h264', codec2='hevc')
 
 .. usage-example-end
 
