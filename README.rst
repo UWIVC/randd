@@ -22,8 +22,11 @@ Features
 .. feature-section-end
 
 .. installation-section-start
+============
+Installation
+============
 
-`R&D <https://github.com/UWIVC/randd>_` can be installed using ``pip`` or from source.
+`R&D <https://github.com/UWIVC/randd>`_ can be installed using ``pip`` or from source.
 
 Install from source:
 
@@ -40,6 +43,10 @@ Install from pip:
 
 
 .. usage-example-start
+============
+Sample Usage
+============
+
 1D example with distortion measure being PSNR:
 
 .. code-block:: python
@@ -77,6 +84,7 @@ Contacts
 --------
 
 **Wentao Liu** - `@w238liu <https://ece.uwaterloo.ca/~w238liu>`_ - ``w238liu@uwaterloo.ca``
+
 **Zhengfang Duanmu** - `@zduanmu <https://ece.uwaterloo.ca/~zduanmu>`_ - ``zduanmu@uwaterloo.ca``
 
 .. contact-section-end
