@@ -47,8 +47,8 @@ class Analyzer:
         self,
         r1: ArrayLike, d1: ArrayLike,
         r2: ArrayLike, d2: ArrayLike,
-        codec_name1: str = 'codec1',
-        codec_name2: str = 'codec2',
+        codec1: str = 'codec1',
+        codec2: str = 'codec2',
     ) -> Tuple[float, float, Summary]:
         r"""_summary_
 
@@ -57,8 +57,8 @@ class Analyzer:
             d1 (ArrayLike): _description_
             r2 (ArrayLike): _description_
             d2 (ArrayLike): _description_
-            codec_name1 (str, optional): _description_. Defaults to 'codec1'.
-            codec_name2 (str, optional): _description_. Defaults to 'codec2'.
+            codec1 (str, optional): _description_. Defaults to 'codec1'.
+            codec2 (str, optional): _description_. Defaults to 'codec2'.
 
         Returns:
             Tuple[float, float, Summary]: _description_
@@ -81,13 +81,13 @@ class Analyzer:
         codec1 = Profile(**{
             'rd_func': rd1, 'dr_func': dr1,
             'sampled_r': r1, 'sampled_d': d1,
-            'name': codec_name1,
+            'name': codec1,
         })
 
         codec2 = Profile(**{
             'rd_func': rd2, 'dr_func': dr2,
             'sampled_r': r2, 'sampled_d': d2,
-            'name': codec_name2,
+            'name': codec2,
         })
 
         summary = Summary(

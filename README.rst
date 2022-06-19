@@ -40,6 +40,7 @@ Install from pip:
 
 
 .. usage-example-start
+1D example with distortion measure being PSNR:
 
 .. code-block:: python
     import randd as rd
@@ -49,6 +50,23 @@ Install from pip:
     d1 = np.array([])
     r2 = np.array([100, 300, 800, 1500])
     d2 = np.array([])
+    analyzer = rd.Analyzer(d_measure='psnr')
+    quality_gain, bitrate_saving, summary = analyzer(r1, d1, r2, d2, codec1='h264', codec2='hevc')
+
+
+2D example with distortion measure being VMAF. Compare the two codecs in the bitrate region [100, 3000]:
+
+.. code-block:: python
+    import randd as rd
+    import numpy as np
+
+    r1 = np.array([100, 300, 800, 1500])
+    d1 = np.array([])
+    r2 = np.array([100, 300, 800, 1500])
+    d2 = np.array([])
+    analyzer = rd.Analyzer(d_measure='vmaf', ndim=2, r_roi=[100, 3000])
+    quality_gain, bitrate_saving, summary = analyzer(r1, d1, r2, d2, codec1='h264', codec2='hevc')
+
 
 .. usage-example-end
 
