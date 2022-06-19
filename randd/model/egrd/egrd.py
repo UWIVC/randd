@@ -201,12 +201,12 @@ class EgrdCore:
 
 
 bases = {
-    ('psnr', 1): 'randd/estimators/egrd/basis/psnr_100_6000_1080p.npz',
-    ('psnr', 2): 'randd/estimators/egrd/basis/psnr_100_6000_allres.npz',
-    ('ssimplus', 1): 'randd/estimators/egrd/basis/ssimplus_100_6000_1080p.npz',
-    ('ssimplus', 2): 'randd/estimators/egrd/basis/ssimplus_100_6000_allres.npz',
-    ('vmaf', 1): 'randd/estimators/egrd/basis/vmaf_100_6000_1080p.npz',
-    ('vmaf', 2): 'randd/estimators/egrd/basis/vmaf_100_6000_allres.npz',
+    ('psnr', 1): 'randd/model/egrd/basis/psnr_100_6000_1080p.npz',
+    ('psnr', 2): 'randd/model/egrd/basis/psnr_100_6000_allres.npz',
+    ('ssimplus', 1): 'randd/model/egrd/basis/ssimplus_100_6000_1080p.npz',
+    ('ssimplus', 2): 'randd/model/egrd/basis/ssimplus_100_6000_allres.npz',
+    ('vmaf', 1): 'randd/model/egrd/basis/vmaf_100_6000_1080p.npz',
+    ('vmaf', 2): 'randd/model/egrd/basis/vmaf_100_6000_allres.npz',
 }
 
 
