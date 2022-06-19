@@ -31,13 +31,15 @@ Installation
 Install from source:
 
 .. code-block:: sh
-    git clone git@github.com:UWIVC/randd.git
-    python setup.py install
+
+    $ git clone git@github.com:UWIVC/randd.git
+    $ python setup.py install
 
 Install from pip:
 
 .. code-block:: sh
-    pip install randd
+
+    $ pip install randd
 
 .. installation-section-end
 
@@ -50,6 +52,7 @@ Sample Usage
 1D example with distortion measure being PSNR:
 
 .. code-block:: python
+
     import randd as rd
     import numpy as np
 
@@ -64,6 +67,7 @@ Sample Usage
 2D example with distortion measure being VMAF. Compare the two codecs in the bitrate region [100, 3000]:
 
 .. code-block:: python
+
     import randd as rd
     import numpy as np
 
