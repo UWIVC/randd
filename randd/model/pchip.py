@@ -13,7 +13,8 @@ class LogPCHIP(GRD):
         References:
             https://chromium.googlesource.com/webm/contributor-guide/+/master/scripts/visual_metrics.py
     """
-    def __init__(self, r: NDArray, d: NDArray) -> None:
+    def __init__(self, r: NDArray, d: NDArray, d_measure: str, ndim: int) -> None:
+        super().__init__(r, d, d_measure, ndim)
         dic = self._group_input(r, d)
         self.f = {}
         for key in dic:

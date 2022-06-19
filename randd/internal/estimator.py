@@ -1,6 +1,6 @@
 from typing import Tuple, Type
 from numpy.typing import NDArray
-from randd.internal.grd import GRD
+from randd.model.base import GRD
 from scipy.interpolate import interp1d
 
 
@@ -24,17 +24,18 @@ class Estimator:
     def __init__(
         self,
         model: Type[GRD],
-        d_measure: str = 'ssim',
+        d_measure: str = 'psnr',
         step: int = 1000,
         mode: str = "linear",
     ) -> None:
         self.step = step
         self.mode = mode
         self.grd = model
+        self.d_measure = d_measure
 
     def __call__(self, r: NDArray, d: NDArray) -> Tuple[interp1d, interp1d]:
         # fit the generalized rate-distortion function
-        grd = self.grd(r, d)
+        grd = self.grd(r, d, d_measure=self.d_measure)
         # densely sample rate-distortion function from the convex hull of the grd
         r, d = grd.convex_hull(step=self.step)
         # produce continuous approximation of the RD/DR functions

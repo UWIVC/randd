@@ -1,122 +1,100 @@
+import logging
 import numpy as np
-from pathlib import Path
+from numpy.typing import NDArray
+from typing import Tuple, Dict
 from randd.model.base import GRD
+from randd.model.linear import Linear
 from scipy.interpolate import interp1d
-from numpy.typing import ArrayLike, NDArray
-from typing import Tuple, Union, Optional, Dict, Type
-
-
-def egrd_factory(ndim: int, d_measure: str = 'ssim') -> EgrdCore:
-    pass
-
-
-class EGRD(GRD):
-    def __init__(self, r: NDArray, d: NDArray) -> None:
-        # obtain dense samples on GRD
-        egrd = egrd_factory()
-        _r, _d = egrd(r, d)
-        dic = self._group_input(r, d)
-        self.f = {}
-        for key in dic:
-            ri, di = dic[key]
-            self.f[key] = interp1d(ri, di, fill_value='extrapolate')
-
-    def __call__(self, r: NDArray) -> NDArray:
-        d = np.zeros(r.shape[0])
-        for i, row in enumerate(r):
-            row = np.expand_dims(row, axis=0)
-            dic: Dict = self._group_input(row)
-            hparam, value = dic.popitem()
-            rate, _ = value
-            d[i] = self.f[hparam](rate[0]) if hparam in self.f else np.nan
-
-        return d
-
-
-# class Temp:
-#     def __init__(
-#         self,
-#         reps: NDArray,
-#         f0: NDArray,
-#         basis: NDArray,
-#         base_estimator1d: BaseEstimator1d = LinearEstimator1d()
-#     ) -> None:
-#         self.egrd_core = EgrdCore(reps, f0, basis)
-#         self.base_estimator1d = base_estimator1d
-
-#     def __call__(self, reps: NDArray, q: NDArray, num_basis: Union[int, None] = None) -> Tuple[Func1d, Func1d]:
-#         q_hat = self.egrd_core.recon_discrete_grd(reps, q, num_basis)
-#         if self.egrd_core.num_resolution > 1:
-#             grd2d = GRDSurface2d(self.egrd_core.reps, q_hat, self.base_estimator1d.estimate_rq_func)
-#             q_hat, r_hat, _ = grd2d.get_rq_envelop()
-#         else:
-#             r_hat = self.egrd_core.reps
-
-#         r_hat: NDArray = r_hat.flatten()
-#         q_hat: NDArray = q_hat.flatten()
-
-#         rq_func, qr_func = self.base_estimator1d(r_hat, q_hat)
-
-#         return rq_func, qr_func
 
 
 class EgrdCore:
-    def __init__(self, reps: NDArray, f0: NDArray, basis: NDArray) -> None:
+    def __init__(
+        self, r: NDArray, d: NDArray, reps: NDArray, f0: NDArray, basis: NDArray
+    ) -> None:
         """Perform EGRD estimation with the given average function and basis
 
         Args:
+            r (NDArray): sampled representations with the first dimension being bitrate
+            d (NDArray): the corresponding distortion
             reps (NDArray): (N,) or (N, 1) or (N, 2) array.
                 N is the number of representations.
                 First dimension is bitrate, and second dimension is resolution.
             f0 (NDArray): (N,) or (N, 1) array.
             basis (NDArray): (N, M) array. M is the total number of basis.
         """
+        # pre-process input
+        self.reps, self.f0, self.H = self._validate_weights(reps, f0, basis)
 
-        # Check compatibility of shapes of arguments
+        # obtain a continuous estimate of the bases
+        self.f0_cont = Linear(self.reps, self.f0)
+        self.basis_cont = [Linear(self.reps, self.H[:, i]) for i in range(self.total_num_basis)]
+
+        # Construct the difference matrix for the constraint in the quadratic programming
+        c_opt = self._solve_qp(r, d)
+        self.d_hat = self._reconstruct_egrd(c_opt)
+
+    def _validate_weights(
+        self, reps: NDArray, f0: NDArray, basis: NDArray
+    ) -> Tuple[NDArray, NDArray, NDArray]:
         if reps.ndim == 0 or reps.ndim > 2:
             raise ValueError("Expected reps to be a 1d or 2d array, but got a {:d}d array instead.".format(reps.ndim))
-        self.num_rep = reps.shape[0]
-        if reps.ndim == 2 and reps.shape[1] == 1:
-            self.reps = reps.flatten()
-        else:
-            self.reps = reps
 
-        if f0.size != self.num_rep:
-            raise ValueError("Expected {:d} entries in f0, but got {:d} entries instead.".format(self.num_rep, f0.size))
-        self.f0 = f0.flatten()
+        if f0.size != reps.shape[0]:
+            raise ValueError("Expected {:d} entries in f0, but got {:d} entries instead.".format(reps.shape[0], f0.size))
 
         if basis.ndim != 2:
             raise ValueError("Expected a 2d array for basis, but got a {:d}d array".format(basis.ndim))
-        if basis.shape[0] != self.num_rep:
-            raise ValueError("Expected {:d} rows in basis, but got {:d} rows instead.".format(self.num_rep, basis.shape[0]))
-        self.H = basis
-        self.total_num_basis = self.H.shape[1]
 
-        # Determine number of resolutions
-        if self.reps.ndim == 1:
-            self.num_resolution = 1
-        elif self.reps.shape[1] == 2:
+        if basis.shape[0] != reps.shape[0]:
+            raise ValueError("Expected {:d} rows in basis, but got {:d} rows instead.".format(reps.shape[0], basis.shape[0]))
+
+        self.total_num_basis = self.H.shape[1]
+        self.num_rep = self.reps.shape[0]
+
+        self.num_resolution = 1
+        if self.reps.shape[1] > 1:
             resolutions: NDArray = np.unique(self.reps[:, 1])
             self.num_resolution = resolutions.size
-        else:
-            raise ValueError("Rep specification other than bitrate and resolution is not supported")
-        # Determine number of bitrates
+
         self.num_bitrate = int(self.num_rep / self.num_resolution)
 
-        # Check if sampled on a regular grid when 2d GRD
-        assert self.num_rep == self.num_resolution * self.num_bitrate, "Currently we do not support GRD basis sampled on an irregular grid."
+        if reps.shape[0] != self.num_resolution * self.num_bitrate:
+            raise ValueError("Currently we do not support GRD basis sampled on an irregular grid.")
 
-        if self.reps.ndim == 1:
-            self.continuous_f0 = Func1d(scipy.interpolate.interp1d(
-                self.reps.flatten(), self.f0.flatten(), fill_value='extrapolate'))
-            self.continuous_basis = [Func1d(scipy.interpolate.interp1d(
-                self.reps.flatten(), self.H[:, i], fill_value='extrapolate')) for i in range(self.total_num_basis)]
-        else:
-            self.continuous_f0 = Func2d(GRDSurface2d(self.reps, self.f0))
-            self.continuous_basis = [Func2d(GRDSurface2d(self.reps, self.H[:, i])) for i in range(self.total_num_basis)]
+        f0 = f0.flatten()
+        return reps, f0, basis
 
-        # Construct the difference matrix for the constraint in the quadratic programming
+    def _solve_qp(self, r: NDArray, d: NDArray, num_basis: int = 10000) -> NDArray:
+        num_samples = r.shape[0]
+        num_basis = min(num_samples, self.total_num_basis, num_basis)
+        if num_basis == 0:
+            return np.array([0])
+
+        # setup constraints
         self.D = self._construct_diff_mat()
+        # setup objective function
+        f0_tilde = self.f0_cont(r)
+        f0f_tilde = f0_tilde - d
+        H_tilde = np.zeros((num_samples, num_basis), dtype=float)
+
+        for i in range(num_basis):
+            H_tilde[:, i] = self.basis_cont[i](r)
+
+        H = self.H[:, :num_basis]
+        c_opt = self._solve_c(f0f_tilde, H_tilde, H)
+
+        # error checking
+        if np.any(np.isnan(c_opt)):
+            logging.warning('Failed to solve the quadratic programming program. Return the default solution.')
+            return np.array([0])
+
+        return c_opt
+
+    def _reconstruct_egrd(self, c: NDArray) -> NDArray:
+        num_basis = c.shape[0]
+        H = self.H[:, :num_basis]
+        d_hat = np.dot(H, c) + self.f0
+        return d_hat
 
     def _construct_diff_mat(self):
         '''Construct discrete derivative matrices D in Eq.X'''
@@ -139,49 +117,7 @@ class EgrdCore:
 
         return D
 
-    def recon_discrete_grd(self, reps: NDArray, q: NDArray, num_basis: Optional[int] = None) -> NDArray:
-        """Reconstruct a discrete GRD surface (or RD curve if only one resolution is provided)
-
-        Args:
-            reps (NDArray): (n,) or (n, 2) array. n is the number of sampled reps.
-            q (NDArray): (n,) array.
-            num_basis (int, optional): number of basis for GRD reconstruction. Defaults to None.
-
-        Returns:
-            NDArray: (self.num_rep, ) array. The values of the reconstructed GRD function at self.rep.
-        """
-        if (self.reps.ndim == 1 and reps.ndim != 1):
-            raise ValueError("Expected reps to be a 1-d array, but got a {:d}-d array instead.".format(reps.ndim))
-
-        if (self.reps.ndim == 2 and (reps.ndim != 2 or reps.shape[1] != 2)):
-            raise ValueError("Expected reps to be an n-by-2 array, but got a {} array instead".format(reps.shape))
-
-        num_samples = reps.shape[0]
-        if num_basis is None:
-            num_basis = min(num_samples, self.total_num_basis)
-        else:
-            num_basis = min(num_samples, self.total_num_basis, num_basis)
-
-        f0_tilde = self.continuous_f0(reps)
-        f0f_tilde = f0_tilde - q
-
-        if num_basis > 0:
-            H_tilde = np.zeros((num_samples, num_basis), dtype=np.float)
-            for i in range(num_basis):
-                H_tilde[:, i] = self.continuous_basis[i](reps)
-
-            H = self.H[:, :num_basis]
-            c_opt = self._solve_c(f0f_tilde, H_tilde, H)
-            if np.any(np.isnan(c_opt)):
-                raise ValueError('The rate-quality curve cannot be estimated!')
-            else:
-                q_hat = np.dot(H, c_opt) + self.f0
-        else:
-            q_hat = self.f0
-
-        return q_hat
-
-    def __call__(self, reps: NDArray, q: NDArray, num_basis: Optional[int] = None) -> FuncNd:
+    def sample(self) -> Tuple[NDArray, NDArray]:
         """Reconstruct a discrete GRD surface (or RD curve if only one resolution is provided)
 
         Args:
@@ -192,13 +128,7 @@ class EgrdCore:
         Returns:
             FuncND: A GRD function continuous along the bitrate dimension
         """
-        q_hat = self.recon_discrete_grd(reps, q, num_basis)
-        if self.reps.ndim == 1:
-            grd_func = scipy.interpolate.interp1d(self.reps, q_hat, fill_value='extrapolate')
-        else:
-            grd_func = Func2d(GRDSurface2d(self.reps, q_hat))
-
-        return grd_func
+        return self.reps, self.d_hat
 
     def _osqp_solve_qp(self, P, q, G=None, h=None, A=None, b=None, initvals=None):
         """
@@ -270,17 +200,43 @@ class EgrdCore:
         return c_opt
 
 
-def generate_eigen_basis(data: ArrayLike, return_eigval: bool = False) -> Tuple[NDArray, ...]:
-    data = np.array(data, dtype=np.float_)
-    assert data.ndim == 2, "Expected data to be a 2D array, but got a {:d}d array instead."
-    f0 = data.mean(axis=0)
-    data = data - f0
-    C = np.cov(data.T)
-    eig_values, H = np.linalg.eigh(C)
-    idx = eig_values.argsort()[::-1]
-    eig_values = eig_values[idx]
-    H = H[:, idx]
-    if return_eigval:
-        return f0, H, eig_values
-    else:
-        return f0, H
+bases = {
+    ('psnr', 1): 'randd/estimators/egrd/basis/psnr_100_6000_1080p.npz',
+    ('psnr', 2): 'randd/estimators/egrd/basis/psnr_100_6000_allres.npz',
+    ('ssimplus', 1): 'randd/estimators/egrd/basis/ssimplus_100_6000_1080p.npz',
+    ('ssimplus', 2): 'randd/estimators/egrd/basis/ssimplus_100_6000_allres.npz',
+    ('vmaf', 1): 'randd/estimators/egrd/basis/vmaf_100_6000_1080p.npz',
+    ('vmaf', 2): 'randd/estimators/egrd/basis/vmaf_100_6000_allres.npz',
+}
+
+
+def egrd_factory(d_measure: str, ndim: int) -> EgrdCore:
+    w_file = bases[(d_measure, ndim)]
+    weights = dict(np.load(w_file))
+    return lambda r, d: EgrdCore(r=r, d=d, **weights)
+
+
+class EGRD(GRD):
+    def __init__(self, r: NDArray, d: NDArray, d_measure: str, ndim: int) -> None:
+        super().__init__(r, d, d_measure, ndim)
+        # obtain dense samples on GRD
+        egrd_cls = egrd_factory(d_measure=d_measure, ndim=ndim)
+        model: EgrdCore = egrd_cls(r, d)
+        _r, _d = model.sample()
+        # get a continuous version
+        dic = self._group_input(_r, _d)
+        self.f = {}
+        for key in dic:
+            ri, di = dic[key]
+            self.f[key] = interp1d(ri, di, fill_value='extrapolate')
+
+    def __call__(self, r: NDArray) -> NDArray:
+        d = np.zeros(r.shape[0])
+        for i, row in enumerate(r):
+            row = np.expand_dims(row, axis=0)
+            dic: Dict = self._group_input(row)
+            hparam, value = dic.popitem()
+            rate, _ = value
+            d[i] = self.f[hparam](rate[0]) if hparam in self.f else np.nan
+
+        return d

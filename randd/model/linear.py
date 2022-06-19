@@ -6,7 +6,8 @@ from scipy.interpolate import interp1d
 
 
 class Linear(GRD):
-    def __init__(self, r: NDArray, d: NDArray) -> None:
+    def __init__(self, r: NDArray, d: NDArray, d_measure: str, ndim: int) -> None:
+        super().__init__(r, d, d_measure, ndim)
         dic = self._group_input(r, d)
         self.f = {}
         for key in dic:

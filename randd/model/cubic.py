@@ -15,7 +15,8 @@ class LogCubic(GRD):
         G. Bjøntegaard, "Improvements of the BD-PSNR model," Berlin, Germany, Tech.
         Rep. VCEG-AI11, ITU-T SG 16/Q6, 35th VCEG Meeting, Jul. 2008.
     """
-    def __init__(self, r: NDArray, d: NDArray) -> None:
+    def __init__(self, r: NDArray, d: NDArray, d_measure: str, ndim: int) -> None:
+        super().__init__(r, d, d_measure, ndim)
         dic = self._group_input(r, d)
         self.f = {}
         for key in dic:

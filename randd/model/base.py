@@ -4,8 +4,9 @@ from typing import Tuple, Dict, Any, Optional
 
 
 class GRD:
-    def __init__(self, r: NDArray, d: NDArray) -> None:
-        pass
+    def __init__(self, r: NDArray, d: NDArray, d_measure: str = 'psnr', ndim: int = 1) -> None:
+        self.d_measure = d_measure
+        self.ndim = ndim
 
     def __call__(self, r: NDArray) -> NDArray:
         pass
