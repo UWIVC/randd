@@ -100,7 +100,9 @@ R&D also provides implementation of traditional codec comparison tools such as B
     r2 = np.array([100., 400., 1500., 6000.])
     d2 = np.array([16.25, 29.75, 33.52, 39.12])
     analyzer = rd.Analyzer(d_measure='psnr', model1=LogCubic, model2=LogCubic)
-    quality_gain, bitrate_saving, summary = analyzer(r1, d1, r2, d2, codec1='h264', codec2='hevc')
+    quality_gain, bitrate_saving, summary = analyzer(r1, d1, r2, d2, codec1='h264', codec2='vp9')
+
+.. image:: docs/source/_static/example3.png
 
 .. usage-example-end
 

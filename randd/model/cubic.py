@@ -5,9 +5,17 @@ from numpy.typing import NDArray
 
 
 class LogCubic(GRD):
-    r"""1D log cubic function estimator. Bitrate is converted into log scale according to the reference below.
-        Extrapolation is automatically enabled, but not reliable.
-        Used in estimation of BD-PSNR and BD-Rate.
+    r"""1D log cubic rate-distortion function estimator.
+
+    Bitrate is converted into log scale according to the reference below.
+    Extrapolation is automatically enabled, but not reliable.
+    Used in estimation of BD-PSNR and BD-Rate.
+
+    Args:
+        r (NDArray): Encoding representations.
+        d (NDArray): Corresponding distortions.
+        d_measure (str): Name of the distortion measure.
+        ndim (int): Number of dimensions of the RD function domain.
 
     References:
         G. Bjøntegaard, "Calculation of average PSNR differences between rdcurves,
@@ -24,6 +32,14 @@ class LogCubic(GRD):
             self.f[key] = np.poly1d(np.polyfit(logr, di, deg=3))
 
     def __call__(self, r: NDArray) -> NDArray:
+        r"""Predict the distortion at the given representation.
+
+        Args:
+            r (NDArray): Input encoding representation.
+
+        Returns:
+            NDArray: Predicted distortion.
+        """
         d = np.zeros(r.shape[0])
         for i, row in enumerate(r):
             row = np.expand_dims(row, axis=0)

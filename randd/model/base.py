@@ -4,6 +4,26 @@ from typing import Tuple, Dict, Any, Optional
 
 
 class GRD:
+    r"""Base rate-distortion function estimator.
+
+    Any generalized rate-distortion function model should be its subclass.
+    The inherited class should provide the implementation of :meth:`__init__`
+    and :meth:`__call__`.
+
+    :meth:`__init__` takes the RD samples, and produces a continuous RD function at each
+    encoding attribute other than bitrate. The function at each encoding attribute is
+    represented by a dictionary ``self.f``.
+
+    :meth:`__call__` employs ``self.f`` to predict the distortion level at the given r.
+
+    Args:
+        r (NDArray): Encoding representations.
+        d (NDArray): Corresponding distortions.
+        d_measure (str): Name of the distortion measure.
+            Defaults to ``psnr``.
+        ndim (int): Number of dimensions of the RD function domain.
+            Defaults to ``1``.
+    """
     def __init__(self, r: NDArray, d: NDArray, d_measure: str = 'psnr', ndim: int = 1) -> None:
         self.d_measure = d_measure
         self.ndim = ndim
