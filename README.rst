@@ -8,6 +8,7 @@ R&D is a Python library that faciliates multimedia codec comparison. It provides
 .. intro-section-end
 
 .. feature-section-start
+
 ========
 Features
 ========
@@ -22,6 +23,7 @@ Features
 .. feature-section-end
 
 .. installation-section-start
+
 ============
 Installation
 ============
@@ -43,14 +45,15 @@ Install from pip:
 
 .. installation-section-end
 
-
 .. usage-example-start
+
 ============
 Sample Usage
 ============
 
-1D example with distortion measure being PSNR:
-----------------------------------------------
+1D Example
+----------
+The following example illustrates how to use R&D to compare two video codecs with distortion measure being PSNR:
 
 .. code-block:: python
 
@@ -67,8 +70,9 @@ Sample Usage
 .. image:: docs/source/_static/example1.png
 
 
-2D example with distortion measure being VMAF. Compare the two codecs in the bitrate region [100, 3000]:
---------------------------------------------------------------------------------------------------------
+2D Example
+----------
+The following example illustrates how to use R&D to compare two video codecs with distortion measure being VMAF. We can also specify the bitrate region [100, 3000] to compute the quality gain. Note that R&D can perform reasonable extrapolation to the region where no RD samples are given.
 
 .. code-block:: python
 
@@ -86,8 +90,9 @@ Sample Usage
 .. image:: docs/source/_static/example2.png
 
 
+Backward Compatibility
+----------------------
 R&D also provides implementation of traditional codec comparison tools such as BD-rate:
----------------------------------------------------------------------------------------
 
 .. code-block:: python
 

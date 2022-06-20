@@ -25,6 +25,7 @@ package_name = "randd"
 setuptools.setup(
     name=package_name,
     version=get_version(os.path.join(package_name, '__init__.py')),
+    license="MIT License",
     description="A Python Library for Video Codec Comparison.",
     long_description=long_description,
     long_description_content_type="text/x-rst",
@@ -39,12 +40,11 @@ setuptools.setup(
         "Development Status :: 3 - Alpha",
         # Indicate who your project is intended for
         "Intended Audience :: Developers",
-        "Topic :: Video Encoding :: Video Codec Comparison",
+        "Topic :: Multimedia :: Video",
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate you support Python 3. These classifiers are *not*
         # checked by 'pip install'. See instead 'python_requires' below.
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
