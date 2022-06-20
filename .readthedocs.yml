@@ -14,7 +14,6 @@ sphinx:
 # Optionally set the version of Python and requirements required to build your docs
 build:
   apt_packages:
-    - libclang
     - cmake
 
 python:
