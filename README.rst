@@ -110,7 +110,7 @@ R&D also provides implementation of traditional codec comparison tools such as B
 Documentation
 =============
 
-The full documentation is available at `https://randd.readthedocs.io/`_.
+The full documentation is available at `<https://randd.readthedocs.io/>`_.
 
 
 .. citation-section-start
