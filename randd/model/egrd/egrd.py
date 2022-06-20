@@ -13,19 +13,6 @@ class EgrdCore:
         r: NDArray, d: NDArray, d_measure: str, ndim: int,
         reps: NDArray, f0: NDArray, basis: NDArray
     ) -> None:
-        """Perform EGRD estimation with the given average function and basis
-
-        Args:
-            r (NDArray): sampled representations with the first dimension being bitrate
-            d (NDArray): the corresponding distortion
-            d_measure (str): distortion measure name
-            ndim (int): number of dimensions for input
-            reps (NDArray): (N,) or (N, 1) or (N, 2) array.
-                N is the number of representations.
-                First dimension is bitrate, and second dimension is resolution.
-            f0 (NDArray): (N,) or (N, 1) array.
-            basis (NDArray): (N, M) array. M is the total number of basis.
-        """
         # pre-process input
         self.reps, self.f0, self.H = self._validate_weights(reps, f0, basis)
 
@@ -224,6 +211,19 @@ def egrd_factory(d_measure: str, ndim: int) -> EgrdCore:
 
 
 class EGRD(GRD):
+    r"""Eigen generalized rate-distortion function estimator.
+
+    Args:
+        r (NDArray): Encoding representations.
+        d (NDArray): Corresponding distortions.
+        d_measure (str): Name of the distortion measure.
+        ndim (int): Number of dimensions of the RD function domain.
+
+    References:
+        Z. Duanmu, W. Liu, Z. Li, K. Ma, and Z. Wang,
+        "Characterizing Generalized Rate-Distortion Performance of Video Coding: An Eigen Analysis Approach,"
+        IEEE Transactions on Image Processing. vol. 29, pp. 6180-6193, 2020.
+    """
     def __init__(self, r: NDArray, d: NDArray, d_measure: str, ndim: int) -> None:
         super().__init__(r, d, d_measure, ndim)
         # obtain dense samples on GRD

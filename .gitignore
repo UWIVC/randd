@@ -136,3 +136,7 @@ exps/
 
 # mac specific files
 .DS_Store
+
+# sphinx documentation
+docs/_build/
+docs/source/generated/
