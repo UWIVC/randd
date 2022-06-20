@@ -143,13 +143,13 @@ class Analyzer:
         return r1, d1, r2, d2
 
     def _r_roi(self, r1: NDArray, r2: NDArray) -> Tuple[float, float]:
-        y1 = r1 if r1.ndim == 1 else r1[:, 0]
-        y2 = r2 if r2.ndim == 1 else r2[:, 0]
-        min_r = max(np.amin(y1), np.amin(y2))
-        max_r = min(np.amax(y1), np.amax(y2))
         if self.r_roi:
-            min_r = max(min_r, self.r_roi[0])
-            max_r = min(max_r, self.r_roi[1])
+            return tuple(self.r_roi)
+        else:
+            y1 = r1 if r1.ndim == 1 else r1[:, 0]
+            y2 = r2 if r2.ndim == 1 else r2[:, 0]
+            min_r = max(np.amin(y1), np.amin(y2))
+            max_r = min(np.amax(y1), np.amax(y2))
 
         return min_r, max_r
 
