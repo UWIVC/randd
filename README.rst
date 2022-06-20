@@ -106,6 +106,12 @@ R&D also provides implementation of traditional codec comparison tools such as B
 
 .. usage-example-end
 
+=============
+Documentation
+=============
+
+The full documentation is available at `<https://randd.readthedocs.io/>`_.
+
 
 .. citation-section-start
 
