@@ -38,7 +38,7 @@ class TestEgrdAnalyzer:
         d1 = np.array([28.39, 71.87, 26.98, 89.35])
         r2 = np.array([[2400.,  400.], [1700.,  865.], [ 300., 1469.], [2100., 2203.]])
         d2 = np.array([28.86, 75.03, 54.35, 96.49])
-        expected_result = np.array([12.32971477445939, -45.60997213660617])
+        expected_result = np.array([11.364702006653086, -45.76491833838688])
         analyzer = Analyzer(d_measure='vmaf', ndim=2, r_roi=[100, 3000])
         quality_gain, bitrate_saving, _ = analyzer(r1, d1, r2, d2, codec1='h264', codec2='vp9')
         assert np.allclose((quality_gain, bitrate_saving), expected_result, rtol=1e-4, equal_nan=True)

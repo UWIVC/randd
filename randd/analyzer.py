@@ -71,7 +71,7 @@ class Analyzer:
 
         # get roi for rate and distortion
         r_roi = self._r_roi(r1, r2)
-        d_roi = self._d_roi(d1, d2)
+        d_roi = self._d_roi(rd1, rd2, r_roi)
 
         # calculate average quality difference
         d_gain = self._dist_gain(rd1, rd2, r_roi)
@@ -153,12 +153,18 @@ class Analyzer:
 
         return min_r, max_r
 
-    def _d_roi(self, d1: NDArray, d2: NDArray) -> Tuple[float, float]:
-        min_d = max(np.amin(d1), np.amin(d2))
-        max_d = min(np.amax(d1), np.amax(d2))
+    def _d_roi(
+        self,
+        rd1: Callable[[ArrayLike], NDArray],
+        rd2: Callable[[ArrayLike], NDArray],
+        r_roi: Tuple[float, float]
+    ) -> Tuple[float, float]:
         if self.d_roi:
-            min_d = max(min_d, self.d_roi[0])
-            max_d = min(max_d, self.d_roi[1])
+            return tuple(self.d_roi)
+        else:
+            min_r, max_r = r_roi
+            min_d = np.nanmax([rd1(min_r), rd2(min_r)])
+            max_d = np.nanmax([rd1(max_r), rd2(min_r)])
 
         return min_d, max_d
 
