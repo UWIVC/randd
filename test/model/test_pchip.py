@@ -1,12 +1,12 @@
-import pytest
 import numpy as np
+import pytest
+
 from randd.model.pchip import LogPCHIP
 
+r1 = (np.array([100.,  300., 1200., 4000.], dtype=float)).reshape(-1, 1)
 
-r1 = (np.array([ 100.,  300., 1200., 4000.], dtype=float)).reshape(-1, 1)
 
-
-q1 = np.array([26.6 , 34.71, 44.36, 48.77], dtype=float)
+q1 = np.array([26.60, 34.71, 44.36, 48.77], dtype=float)
 
 
 r1_hat = (10**(np.linspace(np.log10(100.), np.log10(4500.), num=6))).reshape(-1, 1)
@@ -17,24 +17,25 @@ expected_q1_hat = np.array(
 
 
 r2 = np.array(
-    [[ 100.,  400.],
-     [ 300.,  400.],
+    [[100.,  400.],
+     [300.,  400.],
      [1200.,  400.],
      [4000.,  400.],
-     [ 100., 2203.],
-     [ 300., 2203.],
+     [100., 2203.],
+     [300., 2203.],
      [1200., 2203.],
      [4000., 2203.]], dtype=float)
 
 
-q2 = np.array(
-    [33.11, 34.41, 34.86, 34.98,
-     26.6 , 34.71, 44.36, 48.77], dtype=float)
+q2 = np.array([
+    33.11, 34.41, 34.86, 34.98,
+    26.60, 34.71, 44.36, 48.77
+], dtype=float)
 
 
 r2_hat = np.stack(
     (10**(np.linspace(np.log10(100.), np.log10(4500.), num=6)),
-     np.array([2203., 400., 2203.1, 400., 2203., 400.])), 
+     np.array([2203., 400., 2203.1, 400., 2203., 400.])),
     axis=1
 )
 

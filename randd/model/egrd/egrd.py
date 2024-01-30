@@ -159,7 +159,7 @@ class EgrdCore:
         Check out for this point if you e.g. `get nan values
         <https://github.com/oxfordcontrol/osqp/issues/10>`_ in your solutions.
         """
-        from osqp import OSQP
+        from osqp import OSQP, constant
 
         l_bound = -np.inf * np.ones(len(h))
         if A is not None:
@@ -170,12 +170,12 @@ class EgrdCore:
             qp_A = G
             qp_l = l_bound
             qp_u = h
-        osqp = OSQP()
-        osqp.setup(P=P, q=q, A=qp_A, l=qp_l, u=qp_u, eps_abs=1e-2, max_iter=10000000, verbose=False)
+        osqp_solver = OSQP()
+        osqp_solver.setup(P=P, q=q, A=qp_A, l=qp_l, u=qp_u, eps_abs=1e-2, max_iter=10000000, verbose=False)
         if initvals is not None:
-            osqp.warm_start(x=initvals)
-        res = osqp.solve()
-        if res.info.status_val != osqp.constant('OSQP_SOLVED'):
+            osqp_solver.warm_start(x=initvals)
+        res = osqp_solver.solve()
+        if res.info.status_val != constant('OSQP_SOLVED'):
             print("OSQP exited with status '%s'" % res.info.status)
         return res.x
 

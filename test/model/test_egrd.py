@@ -1,14 +1,14 @@
-import pytest
 import numpy as np
-from randd.model.egrd import EGRD
+import pytest
+
 from randd.internal import Estimator
+from randd.model.egrd import EGRD
+
+# =============================test_01 data==========================================
+r1 = (np.array([100.,  300., 1200., 4000.], dtype=float)).reshape(-1, 1)
 
 
-#=============================test_01 data==========================================
-r1 = (np.array([ 100.,  300., 1200., 4000.], dtype=float)).reshape(-1, 1)
-
-
-psnr1 = np.array([26.6 , 34.71, 44.36, 48.77], dtype=float)
+psnr1 = np.array([26.6, 34.71, 44.36, 48.77], dtype=float)
 
 
 r1_hat = (10**(np.linspace(np.log10(100.), np.log10(4500.), num=6))).reshape(-1, 1)
@@ -18,10 +18,10 @@ expected_psnr1_hat = np.array(
     [26.59999988, 32.04926197, 38.20641348, 43.32343616, 46.90754677, 49.07139174])
 
 
-#=============================test_02 data==========================================
+# =============================test_02 data==========================================
 r2 = np.array(
     [[4000.,  400.],
-     [ 200., 2203.],
+     [200., 2203.],
      [1600., 2203.],
      [3600., 2203.]], dtype=float)
 
@@ -32,7 +32,7 @@ psnr2 = np.array(
 
 r2_hat = np.stack(
     (10**(np.linspace(np.log10(100.), np.log10(4500.), num=6)),
-     np.array([2203., 400., 2203.1, 400., 2203., 400.])), 
+     np.array([2203., 400., 2203.1, 400., 2203., 400.])),
     axis=1
 )
 
@@ -85,7 +85,6 @@ class TestLogCubic:
 
         bitrate2_hat = dr_func(expected_psnr2_hat[1])
         assert np.allclose(bitrate2_hat, r2_hat[:, 0], rtol=1e-4, equal_nan=True)
-
 
 
 if __name__ == "__main__":
