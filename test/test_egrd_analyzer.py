@@ -28,10 +28,11 @@ class TestEgrdAnalyzer:
                        [200., 2203.],
                        [2500., 2203.]])
         d2 = np.array([31.41, 31.07, 21.68, 36.52])
+        expected_result = np.array([1.545422821252965, -31.43398905598459])
 
         analyzer = Analyzer(d_measure='psnr', ndim=2, r_roi=[100, 3000])
         quality_gain, bitrate_saving, _ = analyzer(r1, d1, r2, d2)
-        print(quality_gain, bitrate_saving)
+        assert np.allclose((quality_gain, bitrate_saving), expected_result, rtol=1e-4, equal_nan=True)
 
     def test_03(self):
         # test 2d case with vmaf
