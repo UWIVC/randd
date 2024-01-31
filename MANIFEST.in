@@ -1,3 +1,1 @@
 include requirements.txt
-include docs/source/_static/*.png
-include randd/model/egrd/basis/*.npz
