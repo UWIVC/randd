@@ -59,8 +59,5 @@ setuptools.setup(
         "Bug Reports": "https://github.com/UWIVC/randd/issues",
         "Source": "https://github.com/UWIVC/randd/",
     },
-    package_data={
-        "randd": ["*.npz"],
-        "docs": ["*.png"],
-    },
+    include_package_data=True,
 )
