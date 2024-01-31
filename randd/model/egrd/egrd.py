@@ -1,10 +1,13 @@
 import logging
+import os
+from typing import Dict, Tuple
+
 import numpy as np
 from numpy.typing import NDArray
-from typing import Tuple, Dict
+from scipy.interpolate import interp1d
+
 from randd.model.base import GRD
 from randd.model.linear import Linear
-from scipy.interpolate import interp1d
 
 
 class EgrdCore:
@@ -195,18 +198,19 @@ class EgrdCore:
 
 
 bases = {
-    ('psnr', 1): 'randd/model/egrd/basis/psnr_100_6000_1080p.npz',
-    ('psnr', 2): 'randd/model/egrd/basis/psnr_100_6000_allres.npz',
-    ('ssimplus', 1): 'randd/model/egrd/basis/ssimplus_100_6000_1080p.npz',
-    ('ssimplus', 2): 'randd/model/egrd/basis/ssimplus_100_6000_allres.npz',
-    ('vmaf', 1): 'randd/model/egrd/basis/vmaf_100_6000_1080p.npz',
-    ('vmaf', 2): 'randd/model/egrd/basis/vmaf_100_6000_allres.npz',
+    ('psnr', 1): 'psnr_100_6000_1080p.npz',
+    ('psnr', 2): 'psnr_100_6000_allres.npz',
+    ('ssimplus', 1): 'ssimplus_100_6000_1080p.npz',
+    ('ssimplus', 2): 'ssimplus_100_6000_allres.npz',
+    ('vmaf', 1): 'vmaf_100_6000_1080p.npz',
+    ('vmaf', 2): 'vmaf_100_6000_allres.npz',
 }
 
 
 def egrd_factory(d_measure: str, ndim: int) -> EgrdCore:
     w_file = bases[(d_measure, ndim)]
-    weights = dict(np.load(w_file))
+    w_path = os.path.join(os.path.dirname(__file__), 'basis', w_file)
+    weights = dict(np.load(w_path))
     return lambda r, d: EgrdCore(r=r, d=d, d_measure=d_measure, ndim=ndim, **weights)
 
 
