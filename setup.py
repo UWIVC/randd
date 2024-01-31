@@ -49,15 +49,16 @@ setuptools.setup(
         "Programming Language :: Python :: 3 :: Only",
     ],
     keywords="rate-distortion performance, video encoding",  # Optional
-    packages=setuptools.find_packages(),  # Required
+    packages=setuptools.find_packages(where="randd"),  # Required
     python_requires=">=3.10, <4",  # TODO: Check whether it works with other python versions
     install_requires=required,
     extras_require={
-        "dev": ["flake8"],
-        "test": ["pytest"],
+        "dev": ["flake8", "pytest"],
     },
     project_urls={
         "Bug Reports": "https://github.com/UWIVC/randd/issues",
         "Source": "https://github.com/UWIVC/randd/",
     },
+    package_dir={"": "randd"},
+    include_package_data=True
 )
