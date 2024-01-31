@@ -1,5 +1,6 @@
-import pytest
 import numpy as np
+import pytest
+
 from randd.analyzer import Analyzer
 
 
@@ -18,15 +19,15 @@ class TestEgrdAnalyzer:
     def test_02(self):
         # test 2d case with psnr
         r1 = np.array([[6000.,  640.],
-                       [ 700.,  865.],
-                       [ 200., 2203.],
+                       [700.,  865.],
+                       [200., 2203.],
                        [2500., 2203.]])
-        d1 = np.array([31.28, 30.26, 18.89, 34.4 ])
+        d1 = np.array([31.28, 30.26, 18.89, 34.4])
         r2 = np.array([[6000.,  640.],
-                       [ 700.,  865.],
-                       [ 200., 2203.],
+                       [700.,  865.],
+                       [200., 2203.],
                        [2500., 2203.]])
-        d2 = np.array([31.41, 31.07, 21.68, 36.52]) 
+        d2 = np.array([31.41, 31.07, 21.68, 36.52])
 
         analyzer = Analyzer(d_measure='psnr', ndim=2, r_roi=[100, 3000])
         quality_gain, bitrate_saving, _ = analyzer(r1, d1, r2, d2)
@@ -34,9 +35,9 @@ class TestEgrdAnalyzer:
 
     def test_03(self):
         # test 2d case with vmaf
-        r1 = np.array([[2400.,  400.], [1700.,  865.], [ 300., 1469.], [2100., 2203.]])
+        r1 = np.array([[2400.,  400.], [1700.,  865.], [300., 1469.], [2100., 2203.]])
         d1 = np.array([28.39, 71.87, 26.98, 89.35])
-        r2 = np.array([[2400.,  400.], [1700.,  865.], [ 300., 1469.], [2100., 2203.]])
+        r2 = np.array([[2400.,  400.], [1700.,  865.], [300., 1469.], [2100., 2203.]])
         d2 = np.array([28.86, 75.03, 54.35, 96.49])
         expected_result = np.array([11.364702006653086, -45.76491833838688])
         analyzer = Analyzer(d_measure='vmaf', ndim=2, r_roi=[100, 3000])

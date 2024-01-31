@@ -45,14 +45,12 @@ setuptools.setup(
         # that you indicate you support Python 3. These classifiers are *not*
         # checked by 'pip install'. See instead 'python_requires' below.
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3 :: Only",
     ],
     keywords="rate-distortion performance, video encoding",  # Optional
     packages=setuptools.find_packages(),  # Required
-    python_requires=">=3.7, <4",  # TODO: Check whether it works with other python versions
+    python_requires=">=3.10, <4",  # TODO: Check whether it works with other python versions
     install_requires=required,
     extras_require={
         "dev": ["flake8"],
